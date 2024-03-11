@@ -102,8 +102,11 @@ def NRPTraceModeSettings(instr: 'RsInstrument', freq: 'float', countsForAvg: 'in
     instr.write_str("TRIG:SOUR EXT2") # set external trigger from SMB connector on power meter
     instr.write_str("TRIG:EXT2:IMP HIGH") #set SMB connector impedance as 10 kOhm
 
-    #instr.write_str("SENS:RANG:AUTO ON") #Set auto-range to off
-    #instr.write_str("SENS:RANG 0") #Set sensitivity
+    instr.write_str("SENS:RANG:AUTO OFF") #Set auto-range to off
+    instr.write_str("SENS:RANG 0") #Set sensitivity to most sensitive (needed for measuring after 20 dB pickoff, at least for the lowest powers out of Agilent)
+
+    instr.write_str("SENS:CORR:OFFS:STAT ON") #set offset correction to on when looking after Qorvo amp
+    instr.write_str("SENS:CORR:OFFS 20") #set level offset to 20 dB to account for directional coupler
 
 # -----------------------------------------------------------
 # Tell NRP to begin measurement and check whether measurement was successful
@@ -181,7 +184,7 @@ timings = []
 powers = []
 
 #hard code the number of experimental shots we want traces for
-numshots = 100
+numshots = 168
 for i in range(numshots):
     beginNRPmeasure(myinstr, 2000) #each trigger has up to 2000*0.02 = 40 s timeout
     results = fetchNRPTraceMeasure(myinstr)
